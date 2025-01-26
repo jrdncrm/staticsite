@@ -1,4 +1,4 @@
-
+from textnode import *
 
 
 class HTMLNode():
@@ -20,7 +20,7 @@ class HTMLNode():
 
 class LeafNode(HTMLNode):
     def __init__(self, tag, value, props=None):
-        super().__init__(tag, value, props=props)
+        super().__init__(tag=tag, value=value, props=props)
         
     def to_html(self):
         if self.value is None:
@@ -32,7 +32,7 @@ class LeafNode(HTMLNode):
 
 class ParentNode(HTMLNode):
     def __init__(self, tag, children, props=None):
-        super().__init__(tag, children, props)
+        super().__init__(tag=tag, children=children, props=props)
 
     def to_html(self):
 
@@ -43,3 +43,20 @@ class ParentNode(HTMLNode):
         else:
             children_html = ''.join(node.to_html() for node in self.children)
             return f'<{self.tag}{(" " + self.props_to_html()) if self.props else ""}>{children_html}</{self.tag}>'
+
+def text_node_to_html_node(text_node):
+    if not isinstance(text_node, TextNode): 
+        raise Exception("Input must be a TextNode")
+    match(text_node.text_type):
+        case (TextType.TEXT):
+            return LeafNode(None, {text_node.text})
+        case (TextType.BOLD):
+            return LeafNode("b", {text_node.text})
+        case (TextType.ITALIC):
+            return ("i", {text_node.text})
+        case (TextType.CODE):
+            return ("code", {text_node.text})
+        case (TextType.LINK):
+            return ("a", {text_node.text}, {"href": text_node.url})
+        case (TextType.IMAGE):  
+            return ("img", {text_node.text}, {"src":text_node.url})
